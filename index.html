@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallverine - Voice Controlled Wall Art</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+        
+        #canvas {
+            display: block;
+            cursor: crosshair;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #00ff00;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #00ff00;
+            font-size: 14px;
+            max-width: 300px;
+        }
+        
+        #voiceStatus {
+            color: #ff6b6b;
+            margin-top: 10px;
+        }
+        
+        .listening {
+            color: #4ecdc4 !important;
+        }
+        
+        .processing {
+            color: #ffe66d !important;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="controls">
+        <div><strong>🎩 Wallverine Voice Commands:</strong></div>
+        <div>• "particles" - particle explosion</div>
+        <div>• "spiral" - spiral animation</div>
+        <div>• "waves" - wave patterns</div>
+        <div>• "rainbow" - color cascade</div>
+        <div>• "clear" - reset canvas</div>
+        <div>• "faster" / "slower" - speed control</div>
+        <div id="voiceStatus">Click anywhere to start voice control</div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
