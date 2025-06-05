@@ -77,6 +77,13 @@ Build sophisticated depth with 3-layer control:
 - `"normal speed"` - Reset to default
 - `"clear"` - Reset everything
 
+### Projection Mode 📺
+Perfect for projector setups and wall installations:
+- `"projection mode"` - **Full projection**: fullscreen + hide HUD for pure visuals
+- `"fullscreen"` - Enter/exit fullscreen mode only  
+- `"hide hud"` / `"show hud"` - Toggle interface visibility
+- `"normal mode"` - Exit projection (windowed + show HUD)
+
 ## 🎪 Understanding Scene Modes
 
 ### Single Scene Mode
@@ -96,23 +103,21 @@ Foreground: particles (Full opacity, sharp details)
 
 The layered system creates incredible visual depth through sophisticated blending modes and opacity control.
 
-## ⌨️ Keyboard Shortcuts (Testing)
+## 🎪 Voice-Only Experience
 
-**Basic Effects:**
-- `1-8` - Individual effects
-- `9` - Particles + Waves combo
-- `0` - Rainbow + Fire + Lightning combo
+Wallverine is designed for pure voice interaction - no keyboard, no mouse clicking required once started! Simply:
 
-**Layer Control:**
-- `Q` - Set background to stars
-- `W` - Add particles to foreground  
-- `E` - Put fire in middle
-- `R/T/Y` - Clear background/foreground/middle
+1. **Click once** to start voice recognition
+2. **Speak your commands** naturally
+3. **Say "projection mode"** for instant fullscreen + hidden HUD
+4. **Control everything** through voice while projecting
+5. **Say "normal mode"** to return to windowed view
 
-**Controls:**
-- `C` - Clear all
-- `+/-` - Speed control
-- `=` - Normal speed
+Perfect for:
+- 🎥 **Presentations** - Voice control while speaking to audience
+- 🎉 **Parties** - Hands-free visual control while DJing
+- 🎨 **Art Installations** - Invisible interface for gallery settings
+- 🏠 **Smart Home** - Wall art that responds to natural speech
 
 ## 🏗️ Architecture
 

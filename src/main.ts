@@ -12,12 +12,15 @@ class WallverineApp {
   private sceneManager: SceneManager;
   private voiceController: VoiceController;
   private isRunning = false;
+  private isFullscreen = false;
+  private hudVisible = true;
 
   constructor() {
     this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d')!;
     
     this.setupCanvas();
+    this.setupFullscreenEvents();
     this.sceneManager = new SceneManager(this.ctx, this.canvas);
     
     const statusElement = document.getElementById('voiceStatus')!;
@@ -41,39 +44,6 @@ class WallverineApp {
     // Click anywhere to start/restart voice control
     document.addEventListener('click', () => {
       this.voiceController.start();
-    });
-
-    // Keyboard shortcuts for testing
-    document.addEventListener('keydown', (e) => {
-      switch(e.key) {
-        // Basic effects
-        case '1': this.handleVoiceCommand('particles'); break;
-        case '2': this.handleVoiceCommand('spiral'); break;
-        case '3': this.handleVoiceCommand('waves'); break;
-        case '4': this.handleVoiceCommand('rainbow'); break;
-        case '5': this.handleVoiceCommand('stars'); break;
-        case '6': this.handleVoiceCommand('lightning'); break;
-        case '7': this.handleVoiceCommand('geometry'); break;
-        case '8': this.handleVoiceCommand('fire'); break;
-        
-        // Combinations
-        case '9': this.handleVoiceCommand('particles and waves'); break;
-        case '0': this.handleVoiceCommand('rainbow fire lightning'); break;
-        
-        // Layer testing (hold Shift for these)
-        case 'Q': this.handleVoiceCommand('set background to stars'); break;
-        case 'W': this.handleVoiceCommand('add particles to foreground'); break;
-        case 'E': this.handleVoiceCommand('put fire in middle'); break;
-        case 'R': this.handleVoiceCommand('clear background'); break;
-        case 'T': this.handleVoiceCommand('clear foreground'); break;
-        case 'Y': this.handleVoiceCommand('clear middle'); break;
-        
-        // Controls
-        case 'c': this.handleVoiceCommand('clear'); break;
-        case '+': this.handleVoiceCommand('faster'); break;
-        case '-': this.handleVoiceCommand('slower'); break;
-        case '=': this.handleVoiceCommand('normal speed'); break;
-      }
     });
   }
 
@@ -99,6 +69,52 @@ class WallverineApp {
     if (command.includes('clear') || command.includes('reset')) {
       this.sceneManager.setScene(clearScene);
       this.showLayerStatus(); // Update UI
+      return;
+    }
+    
+    // Fullscreen commands
+    if (command.includes('fullscreen') || command.includes('full screen')) {
+      this.toggleFullscreen();
+      return;
+    }
+    
+    // Projection mode - fullscreen AND hide HUD for pure visuals
+    if (command.includes('projection mode') || command.includes('projection only')) {
+      // Enter fullscreen first
+      if (!this.isFullscreen) {
+        this.toggleFullscreen();
+      }
+      // Hide HUD for pure projection
+      if (this.hudVisible) {
+        this.toggleHUD();
+      }
+      console.log('🎭 PROJECTION MODE: Fullscreen + HUD hidden');
+      return;
+    }
+    
+    // HUD control commands
+    if (command.includes('hide hud') || command.includes('hide interface')) {
+      if (this.hudVisible) this.toggleHUD();
+      return;
+    } else if (command.includes('show hud') || command.includes('show interface') || command.includes('show controls')) {
+      if (!this.hudVisible) this.toggleHUD();
+      return;
+    } else if (command.includes('toggle hud') || command.includes('toggle interface')) {
+      this.toggleHUD();
+      return;
+    }
+    
+    // Exit projection mode - restore HUD and exit fullscreen
+    if (command.includes('exit projection') || command.includes('normal mode') || command.includes('windowed mode')) {
+      // Show HUD first
+      if (!this.hudVisible) {
+        this.toggleHUD();
+      }
+      // Exit fullscreen
+      if (this.isFullscreen) {
+        this.toggleFullscreen();
+      }
+      console.log('🖥️ NORMAL MODE: HUD restored + windowed');
       return;
     }
     
@@ -302,6 +318,66 @@ class WallverineApp {
   stop() {
     this.isRunning = false;
     this.voiceController.stop();
+  }
+
+  // PROJECTION FEATURES: Fullscreen and HUD controls
+  private toggleFullscreen() {
+    // Check actual fullscreen state from browser
+    const isCurrentlyFullscreen = !!(document.fullscreenElement || 
+                                     (document as any).webkitFullscreenElement || 
+                                     (document as any).msFullscreenElement);
+    
+    if (!isCurrentlyFullscreen) {
+      // Enter fullscreen
+      console.log('🎬 Entering fullscreen...');
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if ((document.documentElement as any).webkitRequestFullscreen) {
+        (document.documentElement as any).webkitRequestFullscreen();
+      } else if ((document.documentElement as any).msRequestFullscreen) {
+        (document.documentElement as any).msRequestFullscreen();
+      }
+    } else {
+      // Exit fullscreen
+      console.log('🖥️ Exiting fullscreen...');
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+      }
+    }
+  }
+
+  private setupFullscreenEvents() {
+    // Listen for fullscreen change events
+    const fullscreenEvents = ['fullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'];
+    fullscreenEvents.forEach(event => {
+      document.addEventListener(event, () => {
+        this.isFullscreen = !!(document.fullscreenElement || 
+                               (document as any).webkitFullscreenElement || 
+                               (document as any).msFullscreenElement);
+        console.log(this.isFullscreen ? '📺 Entered fullscreen mode' : '🖥️ Exited fullscreen mode');
+      });
+    });
+  }
+
+  private toggleHUD() {
+    const controls = document.getElementById('controls')!;
+    const layerStatus = document.getElementById('layerStatus')!;
+    
+    this.hudVisible = !this.hudVisible;
+    
+    if (this.hudVisible) {
+      controls.style.display = 'block';
+      layerStatus.style.display = 'block';
+      console.log('📋 HUD visible');
+    } else {
+      controls.style.display = 'none';
+      layerStatus.style.display = 'none';
+      console.log('🎭 HUD hidden - projection mode');
+    }
   }
 }
 
