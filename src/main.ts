@@ -45,9 +45,19 @@ class WallverineApp {
     document.addEventListener('click', () => {
       this.voiceController.start();
     });
+    
+    // Test fullscreen button
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (fullscreenBtn) {
+      fullscreenBtn.addEventListener('click', async (e) => {
+        e.stopPropagation(); // Prevent triggering voice control
+        console.log('🔘 Fullscreen button clicked');
+        await this.requestCanvasFullscreen();
+      });
+    }
   }
 
-  private handleVoiceCommand(command: string) {
+  private async handleVoiceCommand(command: string) {
     console.log('🎯 Processing command:', command);
     
     // Speed control commands (handle first)
@@ -74,21 +84,22 @@ class WallverineApp {
     
     // Fullscreen commands
     if (command.includes('fullscreen') || command.includes('full screen')) {
-      this.toggleFullscreen();
+      console.log('🎯 Fullscreen command received');
+      await this.requestCanvasFullscreen();
       return;
     }
     
     // Projection mode - fullscreen AND hide HUD for pure visuals
     if (command.includes('projection mode') || command.includes('projection only')) {
-      // Enter fullscreen first
-      if (!this.isFullscreen) {
-        this.toggleFullscreen();
-      }
-      // Hide HUD for pure projection
+      console.log('🎯 Projection mode command received');
+      // Hide HUD first (immediate)
       if (this.hudVisible) {
         this.toggleHUD();
+        console.log('📱 HUD hidden for projection');
       }
-      console.log('🎭 PROJECTION MODE: Fullscreen + HUD hidden');
+      // Then attempt fullscreen
+      await this.requestCanvasFullscreen();
+      console.log('🎭 PROJECTION MODE: HUD hidden + fullscreen attempted');
       return;
     }
     
@@ -321,32 +332,75 @@ class WallverineApp {
   }
 
   // PROJECTION FEATURES: Fullscreen and HUD controls
-  private toggleFullscreen() {
-    // Check actual fullscreen state from browser
-    const isCurrentlyFullscreen = !!(document.fullscreenElement || 
-                                     (document as any).webkitFullscreenElement || 
-                                     (document as any).msFullscreenElement);
-    
-    if (!isCurrentlyFullscreen) {
-      // Enter fullscreen
-      console.log('🎬 Entering fullscreen...');
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if ((document.documentElement as any).webkitRequestFullscreen) {
-        (document.documentElement as any).webkitRequestFullscreen();
-      } else if ((document.documentElement as any).msRequestFullscreen) {
-        (document.documentElement as any).msRequestFullscreen();
+  private async toggleFullscreen() {
+    try {
+      // Check actual fullscreen state from browser
+      const isCurrentlyFullscreen = !!(document.fullscreenElement || 
+                                       (document as any).webkitFullscreenElement || 
+                                       (document as any).msFullscreenElement);
+      
+      console.log('🔍 Current fullscreen state:', isCurrentlyFullscreen);
+      
+      if (!isCurrentlyFullscreen) {
+        // Enter fullscreen
+        console.log('🎬 Attempting to enter fullscreen...');
+        
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+          console.log('✅ Fullscreen request sent (standard API)');
+        } else if ((document.documentElement as any).webkitRequestFullscreen) {
+          await (document.documentElement as any).webkitRequestFullscreen();
+          console.log('✅ Fullscreen request sent (webkit API)');
+        } else if ((document.documentElement as any).msRequestFullscreen) {
+          await (document.documentElement as any).msRequestFullscreen();
+          console.log('✅ Fullscreen request sent (ms API)');
+        } else {
+          console.error('❌ Fullscreen API not supported');
+          return;
+        }
+      } else {
+        // Exit fullscreen
+        console.log('🖥️ Attempting to exit fullscreen...');
+        
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+          console.log('✅ Exit fullscreen request sent (standard API)');
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen();
+          console.log('✅ Exit fullscreen request sent (webkit API)');
+        } else if ((document as any).msExitFullscreen) {
+          await (document as any).msExitFullscreen();
+          console.log('✅ Exit fullscreen request sent (ms API)');
+        }
       }
-    } else {
-      // Exit fullscreen
-      console.log('🖥️ Exiting fullscreen...');
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if ((document as any).webkitExitFullscreen) {
-        (document as any).webkitExitFullscreen();
-      } else if ((document as any).msExitFullscreen) {
-        (document as any).msExitFullscreen();
+    } catch (error) {
+      console.error('❌ Fullscreen error:', error);
+      console.log('💡 Tip: Fullscreen requires user interaction. Try clicking first.');
+    }
+  }
+
+  // Alternative fullscreen method targeting the canvas specifically
+  private async requestCanvasFullscreen() {
+    try {
+      console.log('🎨 Attempting canvas fullscreen...');
+      
+      if (this.canvas.requestFullscreen) {
+        await this.canvas.requestFullscreen();
+        console.log('✅ Canvas fullscreen request sent (standard API)');
+      } else if ((this.canvas as any).webkitRequestFullscreen) {
+        await (this.canvas as any).webkitRequestFullscreen();
+        console.log('✅ Canvas fullscreen request sent (webkit API)');
+      } else if ((this.canvas as any).msRequestFullscreen) {
+        await (this.canvas as any).msRequestFullscreen();
+        console.log('✅ Canvas fullscreen request sent (ms API)');
+      } else {
+        console.error('❌ Canvas fullscreen not supported, falling back to document');
+        await this.toggleFullscreen();
       }
+    } catch (error) {
+      console.error('❌ Canvas fullscreen error:', error);
+      console.log('🔄 Falling back to document fullscreen...');
+      await this.toggleFullscreen();
     }
   }
 
