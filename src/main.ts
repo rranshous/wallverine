@@ -1,6 +1,9 @@
 import { SceneManager } from './SceneManager';
 import { VoiceController } from './VoiceController';
-import { particleScene, spiralScene, waveScene, rainbowScene, clearScene, setAnimationSpeed } from './scenes';
+import { 
+  particleScene, spiralScene, waveScene, rainbowScene, clearScene, setAnimationSpeed,
+  rainbowWaveScene, particleSpiralScene, spiralWaveScene, rainbowParticleScene
+} from './scenes';
 
 class WallverineApp {
   private canvas: HTMLCanvasElement;
@@ -46,6 +49,10 @@ class WallverineApp {
         case '2': this.handleVoiceCommand('spiral'); break;
         case '3': this.handleVoiceCommand('waves'); break;
         case '4': this.handleVoiceCommand('rainbow'); break;
+        case '5': this.handleVoiceCommand('rainbow waves'); break;
+        case '6': this.handleVoiceCommand('particle spiral'); break;
+        case '7': this.handleVoiceCommand('spiral waves'); break;
+        case '8': this.handleVoiceCommand('rainbow particles'); break;
         case 'c': this.handleVoiceCommand('clear'); break;
         case '+': this.handleVoiceCommand('faster'); break;
         case '-': this.handleVoiceCommand('slower'); break;
@@ -56,7 +63,26 @@ class WallverineApp {
   private handleVoiceCommand(command: string) {
     console.log('🎯 Processing command:', command);
     
-    // Scene switching commands
+    // Check for combined scene commands first!
+    if (command.includes('rainbow') && command.includes('wave')) {
+      this.sceneManager.setScene(rainbowWaveScene);
+      console.log('🌈🌊 Rainbow waves combined!');
+      return;
+    } else if (command.includes('particle') && command.includes('spiral')) {
+      this.sceneManager.setScene(particleSpiralScene);
+      console.log('🎆🌀 Particle spiral fusion!');
+      return;
+    } else if (command.includes('spiral') && command.includes('wave')) {
+      this.sceneManager.setScene(spiralWaveScene);
+      console.log('🌀🌊 Spiral wave dance!');
+      return;
+    } else if (command.includes('rainbow') && command.includes('particle')) {
+      this.sceneManager.setScene(rainbowParticleScene);
+      console.log('🌈🎆 Rainbow particle explosion!');
+      return;
+    }
+    
+    // Single scene commands
     if (command.includes('particle')) {
       this.sceneManager.setScene(particleScene);
     } else if (command.includes('spiral')) {
@@ -71,14 +97,14 @@ class WallverineApp {
     
     // Speed control commands
     else if (command.includes('faster') || command.includes('speed up')) {
-      setAnimationSpeed(2);
-      console.log('🚀 Speed increased');
+      setAnimationSpeed(4); // Much more dramatic!
+      console.log('🚀 SPEED BOOST!');
     } else if (command.includes('slower') || command.includes('slow down')) {
-      setAnimationSpeed(0.5);
-      console.log('🐌 Speed decreased');
+      setAnimationSpeed(0.2); // Really slow it down
+      console.log('🐌 Slowing to a crawl...');
     } else if (command.includes('normal speed')) {
       setAnimationSpeed(1);
-      console.log('⚡ Normal speed');
+      console.log('⚡ Normal speed restored');
     }
     
     // Fun easter eggs
