@@ -44,11 +44,12 @@
             font-size: 14px;
             max-width: 300px;
             backdrop-filter: blur(5px);
-            display: none;
+            display: block;
         }
         
-        .layer-active {
-            display: block !important;
+        .layer-mode {
+            border-color: #ffe66d !important;
+            color: #ffe66d !important;
         }
         
         #voiceStatus {
@@ -101,9 +102,9 @@
     </div>
     
     <div id="layerStatus">
-        <div><strong>🎭 Layer Composition:</strong></div>
+        <div><strong>🎭 Scene Status:</strong></div>
         <div id="backgroundLayer">Background: <em>none</em></div>
-        <div id="middleLayer">Middle: <em>none</em></div>
+        <div id="middleLayer">Current Scene: <em>loading...</em></div>
         <div id="foregroundLayer">Foreground: <em>none</em></div>
         <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
             <em>Keyboard shortcuts:</em><br>

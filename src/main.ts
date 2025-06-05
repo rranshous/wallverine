@@ -221,7 +221,7 @@ class WallverineApp {
     }
   }
 
-  // ENHANCED: Show current layer composition in UI
+  // ENHANCED: Always show status, highlight when in layered mode
   private showLayerStatus() {
     const layerStatusDiv = document.getElementById('layerStatus')!;
     const backgroundDiv = document.getElementById('backgroundLayer')!;
@@ -229,7 +229,7 @@ class WallverineApp {
     const foregroundDiv = document.getElementById('foregroundLayer')!;
     
     if (this.sceneManager.isInLayeredMode()) {
-      layerStatusDiv.classList.add('layer-active');
+      layerStatusDiv.classList.add('layer-mode');
       console.log(`🎪 Layer Status: ${this.sceneManager.getCurrentSceneName()}`);
       
       // Parse current scene name to extract layer info
@@ -252,7 +252,13 @@ class WallverineApp {
         }
       });
     } else {
-      layerStatusDiv.classList.remove('layer-active');
+      // Single scene mode - show current scene
+      layerStatusDiv.classList.remove('layer-mode');
+      const currentScene = this.sceneManager.getCurrentSceneName();
+      
+      backgroundDiv.innerHTML = 'Background: <em>none</em>';
+      middleDiv.innerHTML = `Current Scene: <strong>${currentScene}</strong>`;
+      foregroundDiv.innerHTML = 'Foreground: <em>none</em>';
     }
   }
 
@@ -262,6 +268,9 @@ class WallverineApp {
     
     // Start with a welcoming particle scene
     this.sceneManager.setScene(particleScene, false);
+    
+    // Initialize the status display
+    this.showLayerStatus();
     
     const animate = (time: number) => {
       if (!this.isRunning) return;
