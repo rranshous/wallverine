@@ -113,36 +113,52 @@ class WallverineApp {
     const effects = parseEffectsFromCommand(command);
     
     if (effects.length === 0) {
-      // Try some classic single effects
-      if (command.includes('particle')) {
+      // Check for very specific single-word commands to avoid false triggers
+      const cleanCommand = command.toLowerCase().trim();
+      
+      // Exact matches only to prevent accidental triggers
+      if (cleanCommand === 'particles' || cleanCommand === 'particle') {
         this.sceneManager.setScene(particleScene);
-      } else if (command.includes('spiral')) {
+        this.showLayerStatus();
+      } else if (cleanCommand === 'spiral' || cleanCommand === 'spirals') {
         this.sceneManager.setScene(spiralScene);
-      } else if (command.includes('wave')) {
+        this.showLayerStatus();
+      } else if (cleanCommand === 'waves' || cleanCommand === 'wave') {
         this.sceneManager.setScene(waveScene);
-      } else if (command.includes('rainbow')) {
+        this.showLayerStatus();
+      } else if (cleanCommand === 'rainbow' || cleanCommand === 'rainbows') {
         this.sceneManager.setScene(rainbowScene);
-      } else if (command.includes('star')) {
+        this.showLayerStatus();
+      } else if (cleanCommand === 'stars' || cleanCommand === 'star') {
         this.sceneManager.setScene(starsScene);
-      } else if (command.includes('lightning')) {
+        this.showLayerStatus();
+      } else if (cleanCommand === 'lightning' || cleanCommand === 'bolt') {
         this.sceneManager.setScene(lightningScene);
-      } else if (command.includes('geometry')) {
+        this.showLayerStatus();
+      } else if (cleanCommand === 'geometry' || cleanCommand === 'shapes') {
         this.sceneManager.setScene(geometryScene);
-      } else if (command.includes('fire')) {
+        this.showLayerStatus();
+      } else if (cleanCommand === 'fire' || cleanCommand === 'flames') {
         this.sceneManager.setScene(fireScene);
+        this.showLayerStatus();
       }
-      // Fun easter eggs
-      else if (command.includes('hello') || command.includes('hi')) {
+      // Fun easter eggs (also exact matches)
+      else if (cleanCommand === 'hello' || cleanCommand === 'hi') {
         this.sceneManager.setScene(rainbowScene);
+        this.showLayerStatus();
         console.log('👋 Hello there!');
-      } else if (command.includes('awesome') || command.includes('cool')) {
+      } else if (cleanCommand === 'awesome' || cleanCommand === 'cool') {
         this.sceneManager.setScene(particleScene);
+        this.showLayerStatus();
         console.log('✨ Why thank you!');
       } else {
-        console.log('🤔 Try saying effects like "particles", "waves", "rainbow", "stars", "lightning", "geometry", or "fire"');
-        console.log('🎭 Layer commands: "set background to stars", "add particles to foreground", "clear background"');
-        console.log('🌟 Combos: "rainbow fire lightning", "particles and waves", "stars geometry spiral"');
+        // FIXED: Unknown command - just log helpful info, don't change anything!
+        console.log(`🤔 Didn't recognize: "${command}"`);
+        console.log('💡 Try: "particles", "waves", "rainbow", "stars", "lightning", "geometry", "fire"');
+        console.log('🎭 Layer commands: "set background to stars", "add particles to foreground"');
+        console.log('🌟 Combos: "rainbow fire lightning", "particles and waves"');
         console.log('⚡ Controls: "faster", "slower", "normal speed", "clear"');
+        // No scene change - preserve current state!
       }
     } else if (effects.length === 1) {
       // Single effect - use the individual scenes for better performance
