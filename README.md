@@ -96,6 +96,7 @@ Perfect for projector setups and wall installations:
 - `"fullscreen"` - Enter/exit fullscreen mode only  
 - `"hide hud"` / `"show hud"` - Toggle interface visibility
 - `"normal mode"` - Exit projection (windowed + show HUD)
+- **F key** - Fullscreen hotkey (backup/quick toggle) ⌨️
 
 ## 🎪 Understanding Scene Modes
 

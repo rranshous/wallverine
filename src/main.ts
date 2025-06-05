@@ -49,13 +49,22 @@ class WallverineApp {
       this.voiceController.start();
     });
     
+    // ADDED: F key hotkey for fullscreen toggle
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        console.log('⌨️ F key pressed - toggling fullscreen');
+        this.toggleFullscreen();
+      }
+    });
+    
     // Test fullscreen button
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     if (fullscreenBtn) {
       fullscreenBtn.addEventListener('click', async (e) => {
         e.stopPropagation(); // Prevent triggering voice control
         console.log('🔘 Fullscreen button clicked');
-        await this.requestCanvasFullscreen();
+        await this.toggleFullscreen(); // FIXED: Use toggle instead of always requesting
       });
     }
   }
@@ -85,10 +94,10 @@ class WallverineApp {
       return;
     }
     
-    // Fullscreen commands
+    // Fullscreen commands - FIXED: Use toggle for proper enter/exit
     if (command.includes('fullscreen') || command.includes('full screen')) {
       console.log('🎯 Fullscreen command received');
-      await this.requestCanvasFullscreen();
+      await this.toggleFullscreen(); // FIXED: Toggle instead of always requesting
       return;
     }
     
