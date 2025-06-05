@@ -180,7 +180,7 @@ export const rainbowScene: Scene = {
 
 export const clearScene: Scene = {
   name: 'clear',
-  animate: (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+  animate: (ctx: CanvasRenderingContext2D, _time: number, canvas: HTMLCanvasElement) => {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
@@ -315,7 +315,7 @@ export const fireScene: Scene = {
   animate: (() => {
     let flames: Array<{x: number, y: number, vx: number, vy: number, life: number, size: number}> = [];
     
-    return (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+    return (ctx: CanvasRenderingContext2D, _time: number, canvas: HTMLCanvasElement) => {
       // Spawn flames from bottom
       if (Math.random() < 0.4 * animationSpeed) {
         for (let i = 0; i < 3; i++) {
@@ -444,6 +444,49 @@ export function parseEffectsFromCommand(command: string): string[] {
   });
   
   return effects;
+}
+
+// ENHANCED: Layer command parser with natural language support
+export function parseLayerCommand(command: string): {
+  layer?: 'background' | 'middle' | 'foreground';
+  effects: string[];
+  action: 'set' | 'add' | 'clear';
+} {
+  const lowerCommand = command.toLowerCase();
+  
+  // Determine layer with more natural phrases
+  let layer: 'background' | 'middle' | 'foreground' | undefined;
+  if (lowerCommand.includes('background') || lowerCommand.includes('behind') || 
+      lowerCommand.includes('back') || lowerCommand.includes('bg')) {
+    layer = 'background';
+  } else if (lowerCommand.includes('foreground') || lowerCommand.includes('front') || 
+             lowerCommand.includes('top') || lowerCommand.includes('fg') ||
+             lowerCommand.includes('over') || lowerCommand.includes('above')) {
+    layer = 'foreground';
+  } else if (lowerCommand.includes('middle') || lowerCommand.includes('mid') ||
+             lowerCommand.includes('center') || lowerCommand.includes('between')) {
+    layer = 'middle';
+  }
+  
+  // Determine action with more natural phrases
+  let action: 'set' | 'add' | 'clear' = 'set';
+  if (lowerCommand.includes('add') || lowerCommand.includes('put') ||
+      lowerCommand.includes('place') || lowerCommand.includes('overlay') ||
+      lowerCommand.includes('on top') || lowerCommand.includes('layer')) {
+    action = 'add';
+  } else if (lowerCommand.includes('clear') || lowerCommand.includes('remove') ||
+             lowerCommand.includes('delete') || lowerCommand.includes('empty') ||
+             lowerCommand.includes('clean')) {
+    action = 'clear';
+  } else if (lowerCommand.includes('set') || lowerCommand.includes('make') ||
+             lowerCommand.includes('change') || lowerCommand.includes('to')) {
+    action = 'set';
+  }
+  
+  // Parse effects
+  const effects = parseEffectsFromCommand(command);
+  
+  return { layer, effects, action };
 }
 
 // Specialized combined scenes that actually work well together!

@@ -23,12 +23,32 @@
             top: 20px;
             left: 20px;
             color: #00ff00;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             padding: 15px;
             border-radius: 8px;
             border: 1px solid #00ff00;
             font-size: 14px;
+            max-width: 340px;
+            backdrop-filter: blur(5px);
+        }
+        
+        #layerStatus {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #4ecdc4;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #4ecdc4;
+            font-size: 14px;
             max-width: 300px;
+            backdrop-filter: blur(5px);
+            display: none;
+        }
+        
+        .layer-active {
+            display: block !important;
         }
         
         #voiceStatus {
@@ -49,7 +69,7 @@
     <canvas id="canvas"></canvas>
     <div id="controls">
         <div><strong>🎩 Wallverine Voice Commands:</strong></div>
-        <div><em>Base Effects:</em></div>
+        <div><em>✨ Base Effects:</em></div>
         <div>• "particles" - particle explosion</div>
         <div>• "spiral" - spiral animation</div>
         <div>• "waves" - wave patterns</div>
@@ -58,15 +78,38 @@
         <div>• "lightning" - electric bolts</div>
         <div>• "geometry" - rotating shapes</div>
         <div>• "fire" - rising flames</div>
-        <div><em>Combination Magic:</em></div>
+        
+        <div style="margin-top: 10px;"><em>🎭 Layered Control:</em></div>
+        <div>• "set background to stars"</div>
+        <div>• "add particles to foreground"</div>
+        <div>• "put fire in the back"</div>
+        <div>• "clear foreground"</div>
+        <div>• "overlay lightning on top"</div>
+        
+        <div style="margin-top: 10px;"><em>🌟 Epic Combos:</em></div>
         <div>• "particles and waves" 🎆🌊</div>
         <div>• "rainbow fire lightning" 🌈🔥⚡</div>
         <div>• "stars geometry spiral" ⭐📐🌀</div>
-        <div>• Say ANY combination you want!</div>
-        <div><em>Controls:</em></div>
+        <div>• Say ANY combination!</div>
+        
+        <div style="margin-top: 10px;"><em>⚡ Controls:</em></div>
         <div>• "faster" / "slower" - speed control</div>
+        <div>• "normal speed" - reset speed</div>
         <div>• "clear" - reset canvas</div>
+        
         <div id="voiceStatus">Click anywhere to start voice control</div>
+    </div>
+    
+    <div id="layerStatus">
+        <div><strong>🎭 Layer Composition:</strong></div>
+        <div id="backgroundLayer">Background: <em>none</em></div>
+        <div id="middleLayer">Middle: <em>none</em></div>
+        <div id="foregroundLayer">Foreground: <em>none</em></div>
+        <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
+            <em>Keyboard shortcuts:</em><br>
+            Q/W/E - Set layers • R/T/Y - Clear layers<br>
+            1-8 - Effects • 9-0 - Combos • C - Clear
+        </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
 </body>
