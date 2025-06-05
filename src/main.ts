@@ -2,7 +2,8 @@ import { SceneManager } from './SceneManager';
 import { VoiceController } from './VoiceController';
 import { 
   particleScene, spiralScene, waveScene, rainbowScene, clearScene, setAnimationSpeed,
-  rainbowWaveScene, particleSpiralScene, spiralWaveScene, rainbowParticleScene
+  starsScene, lightningScene, geometryScene, fireScene,
+  createDynamicCombination, parseEffectsFromCommand
 } from './scenes';
 
 class WallverineApp {
@@ -49,10 +50,12 @@ class WallverineApp {
         case '2': this.handleVoiceCommand('spiral'); break;
         case '3': this.handleVoiceCommand('waves'); break;
         case '4': this.handleVoiceCommand('rainbow'); break;
-        case '5': this.handleVoiceCommand('rainbow waves'); break;
-        case '6': this.handleVoiceCommand('particle spiral'); break;
-        case '7': this.handleVoiceCommand('spiral waves'); break;
-        case '8': this.handleVoiceCommand('rainbow particles'); break;
+        case '5': this.handleVoiceCommand('stars'); break;
+        case '6': this.handleVoiceCommand('lightning'); break;
+        case '7': this.handleVoiceCommand('geometry'); break;
+        case '8': this.handleVoiceCommand('fire'); break;
+        case '9': this.handleVoiceCommand('particles and waves'); break;
+        case '0': this.handleVoiceCommand('rainbow fire lightning'); break;
         case 'c': this.handleVoiceCommand('clear'); break;
         case '+': this.handleVoiceCommand('faster'); break;
         case '-': this.handleVoiceCommand('slower'); break;
@@ -63,57 +66,82 @@ class WallverineApp {
   private handleVoiceCommand(command: string) {
     console.log('🎯 Processing command:', command);
     
-    // Check for combined scene commands first!
-    if (command.includes('rainbow') && command.includes('wave')) {
-      this.sceneManager.setScene(rainbowWaveScene);
-      console.log('🌈🌊 Rainbow waves combined!');
-      return;
-    } else if (command.includes('particle') && command.includes('spiral')) {
-      this.sceneManager.setScene(particleSpiralScene);
-      console.log('🎆🌀 Particle spiral fusion!');
-      return;
-    } else if (command.includes('spiral') && command.includes('wave')) {
-      this.sceneManager.setScene(spiralWaveScene);
-      console.log('🌀🌊 Spiral wave dance!');
-      return;
-    } else if (command.includes('rainbow') && command.includes('particle')) {
-      this.sceneManager.setScene(rainbowParticleScene);
-      console.log('🌈🎆 Rainbow particle explosion!');
-      return;
-    }
-    
-    // Single scene commands
-    if (command.includes('particle')) {
-      this.sceneManager.setScene(particleScene);
-    } else if (command.includes('spiral')) {
-      this.sceneManager.setScene(spiralScene);
-    } else if (command.includes('wave')) {
-      this.sceneManager.setScene(waveScene);
-    } else if (command.includes('rainbow')) {
-      this.sceneManager.setScene(rainbowScene);
-    } else if (command.includes('clear') || command.includes('reset')) {
-      this.sceneManager.setScene(clearScene);
-    }
-    
-    // Speed control commands
-    else if (command.includes('faster') || command.includes('speed up')) {
-      setAnimationSpeed(4); // Much more dramatic!
+    // Speed control commands (handle first)
+    if (command.includes('faster') || command.includes('speed up')) {
+      setAnimationSpeed(4);
       console.log('🚀 SPEED BOOST!');
+      return;
     } else if (command.includes('slower') || command.includes('slow down')) {
-      setAnimationSpeed(0.2); // Really slow it down
+      setAnimationSpeed(0.2);
       console.log('🐌 Slowing to a crawl...');
+      return;
     } else if (command.includes('normal speed')) {
       setAnimationSpeed(1);
       console.log('⚡ Normal speed restored');
+      return;
     }
     
-    // Fun easter eggs
-    else if (command.includes('hello') || command.includes('hi')) {
-      this.sceneManager.setScene(rainbowScene);
-      console.log('👋 Hello there!');
-    } else if (command.includes('awesome') || command.includes('cool')) {
-      this.sceneManager.setScene(particleScene);
-      console.log('✨ Why thank you!');
+    // Clear command
+    if (command.includes('clear') || command.includes('reset')) {
+      this.sceneManager.setScene(clearScene);
+      return;
+    }
+    
+    // Parse effects from the command
+    const effects = parseEffectsFromCommand(command);
+    
+    if (effects.length === 0) {
+      // Try some classic single effects
+      if (command.includes('particle')) {
+        this.sceneManager.setScene(particleScene);
+      } else if (command.includes('spiral')) {
+        this.sceneManager.setScene(spiralScene);
+      } else if (command.includes('wave')) {
+        this.sceneManager.setScene(waveScene);
+      } else if (command.includes('rainbow')) {
+        this.sceneManager.setScene(rainbowScene);
+      } else if (command.includes('star')) {
+        this.sceneManager.setScene(starsScene);
+      } else if (command.includes('lightning')) {
+        this.sceneManager.setScene(lightningScene);
+      } else if (command.includes('geometry')) {
+        this.sceneManager.setScene(geometryScene);
+      } else if (command.includes('fire')) {
+        this.sceneManager.setScene(fireScene);
+      }
+      // Fun easter eggs
+      else if (command.includes('hello') || command.includes('hi')) {
+        this.sceneManager.setScene(rainbowScene);
+        console.log('👋 Hello there!');
+      } else if (command.includes('awesome') || command.includes('cool')) {
+        this.sceneManager.setScene(particleScene);
+        console.log('✨ Why thank you!');
+      } else {
+        console.log('🤔 Try saying effects like "particles", "waves", "rainbow", "stars", "lightning", "geometry", or "fire"');
+      }
+    } else if (effects.length === 1) {
+      // Single effect - use the individual scenes for better performance
+      const effectMap: {[key: string]: any} = {
+        'particle': particleScene,
+        'spiral': spiralScene,
+        'wave': waveScene,
+        'rainbow': rainbowScene,
+        'star': starsScene,
+        'lightning': lightningScene,
+        'geometry': geometryScene,
+        'fire': fireScene
+      };
+      
+      const scene = effectMap[effects[0]];
+      if (scene) {
+        this.sceneManager.setScene(scene);
+        console.log(`✨ ${effects[0]} effect activated!`);
+      }
+    } else {
+      // Multiple effects - create dynamic combination!
+      const combinedScene = createDynamicCombination(effects);
+      this.sceneManager.setScene(combinedScene);
+      console.log(`🌟 EPIC COMBO: ${effects.join(' + ')}!`);
     }
   }
 

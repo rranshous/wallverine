@@ -186,6 +186,266 @@ export const clearScene: Scene = {
   }
 };
 
+// NEW BASE EFFECTS FOR COMBINATIONS!
+export const starsScene: Scene = {
+  name: 'stars',
+  animate: (() => {
+    let stars: Array<{x: number, y: number, brightness: number, twinkle: number}> = [];
+    
+    // Initialize stars
+    if (stars.length === 0) {
+      for (let i = 0; i < 150; i++) {
+        stars.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          brightness: Math.random(),
+          twinkle: Math.random() * Math.PI * 2
+        });
+      }
+    }
+    
+    return (ctx: CanvasRenderingContext2D, _time: number, _canvas: HTMLCanvasElement) => {
+      stars.forEach(star => {
+        star.twinkle += 0.05 * animationSpeed;
+        const alpha = 0.3 + Math.sin(star.twinkle) * 0.7;
+        
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha * star.brightness})`;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, 1 + star.brightness, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    };
+  })()
+};
+
+export const lightningScene: Scene = {
+  name: 'lightning',
+  animate: (() => {
+    let bolts: Array<{points: Array<{x: number, y: number}>, life: number, color: string}> = [];
+    let lastBolt = 0;
+    
+    return (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+      // Spawn lightning bolts randomly
+      if (time - lastBolt > 800 / animationSpeed && Math.random() < 0.3) {
+        const startX = Math.random() * canvas.width;
+        const points = [{x: startX, y: 0}];
+        
+        // Generate jagged lightning path
+        let currentX = startX;
+        let currentY = 0;
+        while (currentY < canvas.height) {
+          currentY += 20 + Math.random() * 40;
+          currentX += (Math.random() - 0.5) * 60;
+          points.push({x: currentX, y: currentY});
+        }
+        
+        bolts.push({
+          points,
+          life: 30,
+          color: `hsl(${200 + Math.random() * 60}, 100%, 80%)`
+        });
+        lastBolt = time;
+      }
+      
+      // Draw and update bolts
+      bolts = bolts.filter(bolt => {
+        bolt.life -= animationSpeed;
+        
+        if (bolt.life > 0) {
+          ctx.strokeStyle = bolt.color;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          
+          bolt.points.forEach((point, i) => {
+            if (i === 0) {
+              ctx.moveTo(point.x, point.y);
+            } else {
+              ctx.lineTo(point.x + (Math.random() - 0.5) * 5, point.y);
+            }
+          });
+          ctx.stroke();
+          
+          return true;
+        }
+        return false;
+      });
+    };
+  })()
+};
+
+export const geometryScene: Scene = {
+  name: 'geometry',
+  animate: (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    for (let i = 0; i < 6; i++) {
+      const angle = (time * 0.001 * animationSpeed) + (i * Math.PI / 3);
+      const size = 50 + Math.sin(time * 0.002 * animationSpeed + i) * 30;
+      
+      ctx.strokeStyle = `hsl(${(i * 60 + time * 0.1) % 360}, 100%, 60%)`;
+      ctx.lineWidth = 2;
+      
+      // Draw rotating polygons
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(angle);
+      
+      ctx.beginPath();
+      const sides = 6;
+      for (let j = 0; j <= sides; j++) {
+        const polyAngle = (j / sides) * Math.PI * 2;
+        const x = Math.cos(polyAngle) * size;
+        const y = Math.sin(polyAngle) * size;
+        
+        if (j === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+};
+
+export const fireScene: Scene = {
+  name: 'fire',
+  animate: (() => {
+    let flames: Array<{x: number, y: number, vx: number, vy: number, life: number, size: number}> = [];
+    
+    return (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+      // Spawn flames from bottom
+      if (Math.random() < 0.4 * animationSpeed) {
+        for (let i = 0; i < 3; i++) {
+          flames.push({
+            x: Math.random() * canvas.width,
+            y: canvas.height,
+            vx: (Math.random() - 0.5) * 2,
+            vy: -2 - Math.random() * 3,
+            life: 60 + Math.random() * 40,
+            size: 5 + Math.random() * 10
+          });
+        }
+      }
+      
+      // Update and draw flames
+      flames = flames.filter(flame => {
+        flame.x += flame.vx * animationSpeed;
+        flame.y += flame.vy * animationSpeed;
+        flame.life -= animationSpeed;
+        flame.vy *= 0.98; // Slow down over time
+        
+        if (flame.life > 0) {
+          const alpha = flame.life / 100;
+          const heat = 1 - (flame.life / 100);
+          const hue = 60 - heat * 60; // From yellow to red
+          
+          ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(flame.x, flame.y, flame.size, 0, Math.PI * 2);
+          ctx.fill();
+          
+          return true;
+        }
+        return false;
+      });
+    };
+  })()
+};
+
+// Dynamic scene combiner that blends multiple effects!
+export function createDynamicCombination(effectNames: string[]): Scene {
+  const effectMap: {[key: string]: Scene} = {
+    'particle': particleScene,
+    'particles': particleScene,
+    'spiral': spiralScene,
+    'wave': waveScene,
+    'waves': waveScene,
+    'rainbow': rainbowScene,
+    'star': starsScene,
+    'stars': starsScene,
+    'lightning': lightningScene,
+    'geometry': geometryScene,
+    'fire': fireScene
+  };
+  
+  const selectedEffects = effectNames
+    .map(name => effectMap[name.toLowerCase()])
+    .filter(effect => effect !== undefined);
+  
+  if (selectedEffects.length === 0) {
+    return clearScene;
+  }
+  
+  return {
+    name: `combo-${effectNames.join('-')}`,
+    animate: (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+      // Semi-transparent background for blending
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Render each effect with additive blending
+      ctx.globalCompositeOperation = 'lighter';
+      
+      selectedEffects.forEach((effect, index) => {
+        ctx.save();
+        ctx.globalAlpha = 0.8 / selectedEffects.length; // Scale alpha by number of effects
+        
+        // Create temp canvas for this effect
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d')!;
+        
+        // Render effect
+        effect.animate(tempCtx, time, tempCanvas);
+        
+        // Draw with slight offset for depth
+        const offsetX = Math.sin(time * 0.001 + index) * 10;
+        const offsetY = Math.cos(time * 0.001 + index) * 10;
+        ctx.drawImage(tempCanvas, offsetX, offsetY);
+        
+        ctx.restore();
+      });
+      
+      // Reset blend mode
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+    },
+    onEnter: () => {
+      console.log(`🎭 Dynamic combo: ${effectNames.join(' + ')}`);
+    }
+  };
+}
+
+// Command parser that extracts effect names from natural language
+export function parseEffectsFromCommand(command: string): string[] {
+  const effects: string[] = [];
+  const lowerCommand = command.toLowerCase();
+  
+  // Define effect keywords
+  const effectKeywords = [
+    ['particle', 'particles'],
+    ['spiral', 'spirals'],
+    ['wave', 'waves'],
+    ['rainbow', 'rainbows'],
+    ['star', 'stars'],
+    ['lightning', 'bolt', 'electric'],
+    ['geometry', 'geometric', 'shapes'],
+    ['fire', 'flames', 'burning']
+  ];
+  
+  effectKeywords.forEach(keywords => {
+    if (keywords.some(keyword => lowerCommand.includes(keyword))) {
+      effects.push(keywords[0]); // Use the primary name
+    }
+  });
+  
+  return effects;
+}
+
 // Specialized combined scenes that actually work well together!
 export const rainbowWaveScene: Scene = {
   name: 'rainbow-waves',
