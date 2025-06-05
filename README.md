@@ -37,7 +37,7 @@ Built with TypeScript, HTML5 Canvas, and the Web Speech API, Wallverine runs ent
 
 ## 🎭 Voice Commands
 
-### Basic Effects
+### Original Effects
 - `"particles"` - Colorful particle explosions
 - `"spiral"` - Hypnotic spiral animations  
 - `"waves"` - Flowing wave patterns
@@ -47,11 +47,24 @@ Built with TypeScript, HTML5 Canvas, and the Web Speech API, Wallverine runs ent
 - `"geometry"` - Rotating geometric shapes
 - `"fire"` - Rising flame effects
 
+### ✨ NEW Effects (Doubled Collection!)
+- `"matrix"` - Digital rain code effect
+- `"vortex"` - Swirling particle tornado
+- `"crystals"` - Growing crystal formations
+- `"plasma"` - Pulsing energy fields
+- `"nebula"` - Cosmic cloud formations
+- `"circuit"` - Electric circuit pathways
+- `"meteor"` - Shooting star shower
+- `"aurora"` - Dancing aurora waves
+
 ### Epic Combinations
 Combine any effects for magical results:
 - `"particles and waves"` 🎆🌊
 - `"rainbow fire lightning"` 🌈🔥⚡
-- `"stars geometry spiral"` ⭐📐🌀
+- `"matrix vortex plasma"` 💻🌪️⚡
+- `"aurora nebula crystals"` 🌌💎✨
+- `"meteor circuit geometry"` ☄️🔌📐
+- Mix ANY of the 16 effects!
 
 ### Layered Compositions
 Build sophisticated depth with 3-layer control:

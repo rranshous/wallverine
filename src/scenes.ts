@@ -355,6 +355,483 @@ export const fireScene: Scene = {
   })()
 };
 
+// NEW EFFECTS - Doubling the collection!
+
+export const matrixScene: Scene = {
+  name: 'matrix',
+  animate: (() => {
+    let drops: Array<{x: number, y: number, speed: number, chars: string[]}> = [];
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
+    
+    // Initialize matrix drops
+    if (drops.length === 0) {
+      for (let i = 0; i < 50; i++) {
+        drops.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight - window.innerHeight,
+          speed: 2 + Math.random() * 4,
+          chars: Array.from({length: 20}, () => chars[Math.floor(Math.random() * chars.length)])
+        });
+      }
+    }
+    
+    return (ctx: CanvasRenderingContext2D, _time: number, canvas: HTMLCanvasElement) => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.font = '16px monospace';
+      
+      drops.forEach(drop => {
+        drop.y += drop.speed * animationSpeed;
+        
+        drop.chars.forEach((char, i) => {
+          const y = drop.y + i * 20;
+          const alpha = Math.max(0, 1 - (i / drop.chars.length));
+          ctx.fillStyle = `rgba(0, 255, 0, ${alpha})`;
+          ctx.fillText(char, drop.x, y);
+        });
+        
+        // Reset when off screen
+        if (drop.y > canvas.height + drop.chars.length * 20) {
+          drop.y = -drop.chars.length * 20;
+          drop.x = Math.random() * canvas.width;
+          // Occasionally change characters
+          if (Math.random() < 0.1) {
+            drop.chars = drop.chars.map(() => chars[Math.floor(Math.random() * chars.length)]);
+          }
+        }
+      });
+    };
+  })()
+};
+
+export const vortexScene: Scene = {
+  name: 'vortex',
+  animate: (() => {
+    let particles: Array<{angle: number, radius: number, speed: number, color: string}> = [];
+    
+    return (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      
+      // Spawn particles at the edge
+      if (Math.random() < 0.3 * animationSpeed) {
+        particles.push({
+          angle: Math.random() * Math.PI * 2,
+          radius: Math.max(canvas.width, canvas.height) * 0.6,
+          speed: 2 + Math.random() * 3,
+          color: `hsl(${240 + Math.random() * 120}, 100%, ${50 + Math.random() * 30}%)`
+        });
+      }
+      
+      // Update and draw particles
+      particles = particles.filter(particle => {
+        particle.angle += 0.02 * animationSpeed;
+        particle.radius -= particle.speed * animationSpeed;
+        
+        if (particle.radius > 5) {
+          const x = centerX + Math.cos(particle.angle) * particle.radius;
+          const y = centerY + Math.sin(particle.angle) * particle.radius;
+          
+          ctx.fillStyle = particle.color;
+          ctx.beginPath();
+          ctx.arc(x, y, 3, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Add trailing effect
+          ctx.strokeStyle = particle.color;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          const prevX = centerX + Math.cos(particle.angle - 0.1) * (particle.radius + 5);
+          const prevY = centerY + Math.sin(particle.angle - 0.1) * (particle.radius + 5);
+          ctx.moveTo(prevX, prevY);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+          
+          return true;
+        }
+        return false;
+      });
+    };
+  })()
+};
+
+export const crystalsScene: Scene = {
+  name: 'crystals',
+  animate: (() => {
+    let crystals: Array<{x: number, y: number, size: number, growth: number, color: string, sides: number}> = [];
+    
+    return (ctx: CanvasRenderingContext2D, _time: number, canvas: HTMLCanvasElement) => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Spawn new crystals
+      if (Math.random() < 0.05 * animationSpeed && crystals.length < 20) {
+        crystals.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: 5,
+          growth: 0.5 + Math.random() * 1.5,
+          color: `hsl(${180 + Math.random() * 60}, 80%, 60%)`,
+          sides: 6 + Math.floor(Math.random() * 3)
+        });
+      }
+      
+      // Draw and grow crystals
+      crystals = crystals.filter(crystal => {
+        crystal.size += crystal.growth * animationSpeed;
+        
+        if (crystal.size < 80) {
+          ctx.strokeStyle = crystal.color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          
+          // Draw crystal as polygon
+          for (let i = 0; i <= crystal.sides; i++) {
+            const angle = (i / crystal.sides) * Math.PI * 2;
+            const x = crystal.x + Math.cos(angle) * crystal.size;
+            const y = crystal.y + Math.sin(angle) * crystal.size;
+            
+            if (i === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+          }
+          ctx.stroke();
+          
+          // Inner crystal
+          ctx.beginPath();
+          for (let i = 0; i <= crystal.sides; i++) {
+            const angle = (i / crystal.sides) * Math.PI * 2;
+            const x = crystal.x + Math.cos(angle) * crystal.size * 0.5;
+            const y = crystal.y + Math.sin(angle) * crystal.size * 0.5;
+            
+            if (i === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+          }
+          ctx.stroke();
+          
+          return true;
+        }
+        return false;
+      });
+    };
+  })()
+};
+
+export const plasmaScene: Scene = {
+  name: 'plasma',
+  animate: (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+    const imageData = ctx.createImageData(canvas.width, canvas.height);
+    const data = imageData.data;
+    
+    const t = time * 0.001 * animationSpeed;
+    
+    for (let x = 0; x < canvas.width; x += 2) {
+      for (let y = 0; y < canvas.height; y += 2) {
+        const plasma = Math.sin(x * 0.02 + t) + 
+                      Math.sin(y * 0.02 + t) + 
+                      Math.sin((x + y) * 0.02 + t) + 
+                      Math.sin(Math.sqrt(x*x + y*y) * 0.02 + t);
+        
+        const intensity = Math.floor((plasma + 4) * 32);
+        const index = (y * canvas.width + x) * 4;
+        
+        // Create plasma colors
+        data[index] = Math.sin(intensity * 0.1) * 127 + 128;     // Red
+        data[index + 1] = Math.sin(intensity * 0.1 + 2) * 127 + 128; // Green  
+        data[index + 2] = Math.sin(intensity * 0.1 + 4) * 127 + 128; // Blue
+        data[index + 3] = 255; // Alpha
+        
+        // Fill 2x2 block for performance
+        if (x + 1 < canvas.width) {
+          const rightIndex = (y * canvas.width + x + 1) * 4;
+          data[rightIndex] = data[index];
+          data[rightIndex + 1] = data[index + 1];
+          data[rightIndex + 2] = data[index + 2];
+          data[rightIndex + 3] = 255;
+        }
+        if (y + 1 < canvas.height) {
+          const bottomIndex = ((y + 1) * canvas.width + x) * 4;
+          data[bottomIndex] = data[index];
+          data[bottomIndex + 1] = data[index + 1];
+          data[bottomIndex + 2] = data[index + 2];
+          data[bottomIndex + 3] = 255;
+          
+          if (x + 1 < canvas.width) {
+            const diagIndex = ((y + 1) * canvas.width + x + 1) * 4;
+            data[diagIndex] = data[index];
+            data[diagIndex + 1] = data[index + 1];
+            data[diagIndex + 2] = data[index + 2];
+            data[diagIndex + 3] = 255;
+          }
+        }
+      }
+    }
+    
+    ctx.putImageData(imageData, 0, 0);
+  }
+};
+
+export const nebulaScene: Scene = {
+  name: 'nebula',
+  animate: (() => {
+    let clouds: Array<{x: number, y: number, radius: number, color: string, drift: {x: number, y: number}}> = [];
+    
+    return (ctx: CanvasRenderingContext2D, _time: number, canvas: HTMLCanvasElement) => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.01)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Spawn nebula clouds
+      if (Math.random() < 0.02 * animationSpeed && clouds.length < 15) {
+        clouds.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: 50 + Math.random() * 100,
+          color: `hsl(${Math.random() * 60 + 250}, 60%, 40%)`, // Purple to blue
+          drift: {
+            x: (Math.random() - 0.5) * 0.5,
+            y: (Math.random() - 0.5) * 0.5
+          }
+        });
+      }
+      
+      // Draw nebula clouds with gradients
+      clouds.forEach(cloud => {
+        cloud.x += cloud.drift.x * animationSpeed;
+        cloud.y += cloud.drift.y * animationSpeed;
+        
+        // Create radial gradient
+        const gradient = ctx.createRadialGradient(
+          cloud.x, cloud.y, 0,
+          cloud.x, cloud.y, cloud.radius
+        );
+        gradient.addColorStop(0, cloud.color.replace('40%', '30%'));
+        gradient.addColorStop(0.5, cloud.color.replace('40%', '15%'));
+        gradient.addColorStop(1, 'transparent');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(cloud.x, cloud.y, cloud.radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Wrap around screen
+        if (cloud.x < -cloud.radius) cloud.x = canvas.width + cloud.radius;
+        if (cloud.x > canvas.width + cloud.radius) cloud.x = -cloud.radius;
+        if (cloud.y < -cloud.radius) cloud.y = canvas.height + cloud.radius;
+        if (cloud.y > canvas.height + cloud.radius) cloud.y = -cloud.radius;
+      });
+    };
+  })()
+};
+
+export const circuitScene: Scene = {
+  name: 'circuit',
+  animate: (() => {
+    let circuits: Array<{
+      startX: number, startY: number, endX: number, endY: number,
+      progress: number, speed: number, color: string
+    }> = [];
+    let nodes: Array<{x: number, y: number, pulse: number}> = [];
+    
+    // Initialize circuit nodes
+    if (nodes.length === 0) {
+      for (let i = 0; i < 20; i++) {
+        nodes.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          pulse: Math.random() * Math.PI * 2
+        });
+      }
+    }
+    
+    return (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Spawn new circuits
+      if (Math.random() < 0.1 * animationSpeed) {
+        const start = nodes[Math.floor(Math.random() * nodes.length)];
+        const end = nodes[Math.floor(Math.random() * nodes.length)];
+        
+        if (start !== end) {
+          circuits.push({
+            startX: start.x,
+            startY: start.y,
+            endX: end.x,
+            endY: end.y,
+            progress: 0,
+            speed: 0.02 + Math.random() * 0.03,
+            color: `hsl(${180 + Math.random() * 60}, 100%, 60%)`
+          });
+        }
+      }
+      
+      // Draw circuit nodes
+      nodes.forEach(node => {
+        node.pulse += 0.1 * animationSpeed;
+        const intensity = Math.sin(node.pulse) * 0.5 + 0.5;
+        
+        ctx.fillStyle = `rgba(0, 255, 255, ${intensity})`;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      
+      // Draw and animate circuits
+      circuits = circuits.filter(circuit => {
+        circuit.progress += circuit.speed * animationSpeed;
+        
+        if (circuit.progress <= 1) {
+          const currentX = circuit.startX + (circuit.endX - circuit.startX) * circuit.progress;
+          const currentY = circuit.startY + (circuit.endY - circuit.startY) * circuit.progress;
+          
+          ctx.strokeStyle = circuit.color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(circuit.startX, circuit.startY);
+          ctx.lineTo(currentX, currentY);
+          ctx.stroke();
+          
+          // Electric effect at the moving end
+          ctx.fillStyle = circuit.color;
+          ctx.beginPath();
+          ctx.arc(currentX, currentY, 3, 0, Math.PI * 2);
+          ctx.fill();
+          
+          return true;
+        }
+        return false;
+      });
+    };
+  })()
+};
+
+export const meteorScene: Scene = {
+  name: 'meteor',
+  animate: (() => {
+    let meteors: Array<{
+      x: number, y: number, vx: number, vy: number,
+      trail: Array<{x: number, y: number}>, color: string, size: number
+    }> = [];
+    
+    return (ctx: CanvasRenderingContext2D, _time: number, canvas: HTMLCanvasElement) => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Spawn meteors
+      if (Math.random() < 0.05 * animationSpeed) {
+        meteors.push({
+          x: Math.random() * canvas.width,
+          y: -50,
+          vx: (Math.random() - 0.5) * 4,
+          vy: 3 + Math.random() * 5,
+          trail: [],
+          color: `hsl(${Math.random() * 60 + 20}, 100%, 70%)`, // Orange to yellow
+          size: 2 + Math.random() * 4
+        });
+      }
+      
+      // Update and draw meteors
+      meteors = meteors.filter(meteor => {
+        // Update position
+        meteor.x += meteor.vx * animationSpeed;
+        meteor.y += meteor.vy * animationSpeed;
+        
+        // Add to trail
+        meteor.trail.push({x: meteor.x, y: meteor.y});
+        if (meteor.trail.length > 15) {
+          meteor.trail.shift();
+        }
+        
+        // Draw trail
+        meteor.trail.forEach((point, i) => {
+          const alpha = i / meteor.trail.length;
+          ctx.fillStyle = meteor.color.replace('70%', `${alpha * 70}%`);
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, meteor.size * alpha, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        
+        // Draw meteor head
+        ctx.fillStyle = meteor.color;
+        ctx.beginPath();
+        ctx.arc(meteor.x, meteor.y, meteor.size, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Bright core
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(meteor.x, meteor.y, meteor.size * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        return meteor.y < canvas.height + 50;
+      });
+    };
+  })()
+};
+
+export const auroraScene: Scene = {
+  name: 'aurora',
+  animate: (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const t = time * 0.001 * animationSpeed;
+    
+    // Draw multiple aurora layers
+    for (let layer = 0; layer < 4; layer++) {
+      const hue = 120 + layer * 60 + Math.sin(t + layer) * 30; // Green to purple spectrum
+      const amplitude = 50 + layer * 20;
+      const frequency = 0.005 + layer * 0.001;
+      const yOffset = canvas.height * 0.3 + layer * 30;
+      
+      // Create gradient for aurora effect
+      const gradient = ctx.createLinearGradient(0, yOffset - amplitude, 0, yOffset + amplitude);
+      gradient.addColorStop(0, 'transparent');
+      gradient.addColorStop(0.5, `hsla(${hue}, 80%, 60%, 0.6)`);
+      gradient.addColorStop(1, 'transparent');
+      
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      
+      // Draw wavy aurora shape
+      let firstPoint = true;
+      for (let x = 0; x <= canvas.width; x += 5) {
+        const wave1 = Math.sin(x * frequency + t + layer * 0.5) * amplitude;
+        const wave2 = Math.sin(x * frequency * 2 + t * 1.2 + layer) * amplitude * 0.3;
+        const y1 = yOffset + wave1 + wave2;
+        const y2 = yOffset - wave1 - wave2 + amplitude * 2;
+        
+        if (firstPoint) {
+          ctx.moveTo(x, y1);
+          firstPoint = false;
+        } else {
+          ctx.lineTo(x, y1);
+        }
+      }
+      
+      // Close the path
+      for (let x = canvas.width; x >= 0; x -= 5) {
+        const wave1 = Math.sin(x * frequency + t + layer * 0.5) * amplitude;
+        const wave2 = Math.sin(x * frequency * 2 + t * 1.2 + layer) * amplitude * 0.3;
+        const y2 = yOffset - wave1 - wave2 + amplitude * 2;
+        ctx.lineTo(x, y2);
+      }
+      
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+};
+
 // Dynamic scene combiner that blends multiple effects!
 export function createDynamicCombination(effectNames: string[]): Scene {
   const effectMap: {[key: string]: Scene} = {
@@ -425,8 +902,9 @@ export function parseEffectsFromCommand(command: string): string[] {
   const effects: string[] = [];
   const lowerCommand = command.toLowerCase();
   
-  // Define effect keywords
+  // Define effect keywords - EXPANDED with all 16 effects
   const effectKeywords = [
+    // Original 8 effects
     ['particle', 'particles'],
     ['spiral', 'spirals'],
     ['wave', 'waves'],
@@ -434,7 +912,16 @@ export function parseEffectsFromCommand(command: string): string[] {
     ['star', 'stars'],
     ['lightning', 'bolt', 'electric'],
     ['geometry', 'geometric', 'shapes'],
-    ['fire', 'flames', 'burning']
+    ['fire', 'flames', 'burning'],
+    // NEW 8 effects
+    ['matrix', 'digital', 'code', 'rain'],
+    ['vortex', 'swirl', 'whirlpool', 'tornado'],
+    ['crystal', 'crystals', 'gem', 'gems'],
+    ['plasma', 'energy', 'field'],
+    ['nebula', 'cloud', 'space', 'cosmic'],
+    ['circuit', 'circuits', 'electric', 'board'],
+    ['meteor', 'meteors', 'shooting', 'comet'],
+    ['aurora', 'northern', 'lights', 'borealis']
   ];
   
   effectKeywords.forEach(keywords => {

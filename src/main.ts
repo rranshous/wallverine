@@ -3,6 +3,9 @@ import { VoiceController } from './VoiceController';
 import { 
   particleScene, spiralScene, waveScene, rainbowScene, clearScene, setAnimationSpeed,
   starsScene, lightningScene, geometryScene, fireScene,
+  // NEW 8 effects
+  matrixScene, vortexScene, crystalsScene, plasmaScene, 
+  nebulaScene, circuitScene, meteorScene, auroraScene,
   createDynamicCombination, parseEffectsFromCommand, parseLayerCommand
 } from './scenes';
 
@@ -181,7 +184,8 @@ class WallverineApp {
       } else {
         // FIXED: Unknown command - just log helpful info, don't change anything!
         console.log(`🤔 Didn't recognize: "${command}"`);
-        console.log('💡 Try: "particles", "waves", "rainbow", "stars", "lightning", "geometry", "fire"');
+        console.log('💡 Original effects: "particles", "waves", "rainbow", "stars", "lightning", "geometry", "fire", "spiral"');
+        console.log('✨ New effects: "matrix", "vortex", "crystals", "plasma", "nebula", "circuit", "meteor", "aurora"');
         console.log('🎭 Layer commands: "set background to stars", "add particles to foreground"');
         console.log('🌟 Combos: "rainbow fire lightning", "particles and waves"');
         console.log('⚡ Controls: "faster", "slower", "normal speed", "clear"');
@@ -190,6 +194,7 @@ class WallverineApp {
     } else if (effects.length === 1) {
       // Single effect - use the individual scenes for better performance
       const effectMap: {[key: string]: any} = {
+        // Original 8 effects
         'particle': particleScene,
         'spiral': spiralScene,
         'wave': waveScene,
@@ -197,7 +202,16 @@ class WallverineApp {
         'star': starsScene,
         'lightning': lightningScene,
         'geometry': geometryScene,
-        'fire': fireScene
+        'fire': fireScene,
+        // NEW 8 effects
+        'matrix': matrixScene,
+        'vortex': vortexScene,
+        'crystal': crystalsScene,
+        'plasma': plasmaScene,
+        'nebula': nebulaScene,
+        'circuit': circuitScene,
+        'meteor': meteorScene,
+        'aurora': auroraScene
       };
       
       const scene = effectMap[effects[0]];
@@ -224,6 +238,7 @@ class WallverineApp {
     if (!layerInfo.layer) return;
     
     const effectMap: {[key: string]: any} = {
+      // Original 8 effects
       'particle': particleScene,
       'spiral': spiralScene,
       'wave': waveScene,
@@ -231,7 +246,16 @@ class WallverineApp {
       'star': starsScene,
       'lightning': lightningScene,
       'geometry': geometryScene,
-      'fire': fireScene
+      'fire': fireScene,
+      // NEW 8 effects
+      'matrix': matrixScene,
+      'vortex': vortexScene,
+      'crystal': crystalsScene,
+      'plasma': plasmaScene,
+      'nebula': nebulaScene,
+      'circuit': circuitScene,
+      'meteor': meteorScene,
+      'aurora': auroraScene
     };
     
     if (layerInfo.action === 'clear') {
