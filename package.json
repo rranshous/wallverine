@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "publish": "npm run build && cd dist && zip -r ../wallverine-web.zip * && cd .. && echo '✅ Build complete! ZIP created: wallverine-web.zip' && echo '🚀 Starting preview server...' && npm run preview"
+    "publish": "npm run build && cd dist && zip -r ../releases/wallverine-web-$(date +%Y%m%d-%H%M%S).zip * && cd .. && echo '✅ Build complete! ZIP created in releases/ folder' && echo '🚀 Starting preview server...' && npm run preview"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

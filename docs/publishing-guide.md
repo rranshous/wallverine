@@ -20,7 +20,7 @@ npm run publish
 ```
 This single command will:
 1. Build the production version
-2. Create the `wallverine-web.zip` file ready for itch.io
+2. Create a timestamped ZIP file in `releases/` folder (e.g., `wallverine-web-20250621-194253.zip`)
 3. Start a preview server to test the build
 
 ### Option 2: Manual Steps
@@ -51,12 +51,14 @@ If you prefer to do it step by step:
 ## 📦 Preparing for itch.io
 
 ### 1. Build & Package
-If you used `npm run publish`, you already have `wallverine-web.zip` ready to upload! 🎉
+If you used `npm run publish`, you already have a timestamped ZIP file in the `releases/` folder ready to upload! 🎉
+
+The ZIP files are named with timestamps like: `wallverine-web-20250621-194253.zip`
 
 If you built manually, create the ZIP:
 ```bash
 cd dist
-zip -r ../wallverine-web.zip *
+zip -r ../releases/wallverine-web-$(date +%Y%m%d-%H%M%S).zip *
 cd ..
 ```
 
