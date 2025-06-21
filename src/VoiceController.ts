@@ -11,14 +11,20 @@ export class VoiceController {
   }
 
   private setupSpeechRecognition() {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
-    if (!SpeechRecognition) {
+    if (!SpeechRecognitionClass) {
       this.statusElement.textContent = 'Speech recognition not supported';
       return;
     }
 
-    this.recognition = new SpeechRecognition();
+    this.recognition = new SpeechRecognitionClass();
+    
+    if (!this.recognition) {
+      this.statusElement.textContent = 'Failed to create speech recognition';
+      return;
+    }
+
     this.recognition.continuous = true;
     this.recognition.interimResults = false;
     this.recognition.lang = 'en-US';
@@ -45,7 +51,7 @@ export class VoiceController {
       }, 2000);
     };
 
-    this.recognition.onerror = (event) => {
+    this.recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Speech recognition error:', event.error);
       this.statusElement.textContent = `❌ Error: ${event.error}`;
       this.statusElement.className = '';

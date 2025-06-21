@@ -149,7 +149,7 @@ export const rainbowScene: Scene = {
   animate: (() => {
     let drops: Array<{x: number, y: number, hue: number, speed: number}> = [];
     
-    return (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+    return (ctx: CanvasRenderingContext2D, _time: number, canvas: HTMLCanvasElement) => {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
@@ -410,7 +410,7 @@ export const vortexScene: Scene = {
   animate: (() => {
     let particles: Array<{angle: number, radius: number, speed: number, color: string}> = [];
     
-    return (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+    return (ctx: CanvasRenderingContext2D, _time: number, canvas: HTMLCanvasElement) => {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
@@ -652,7 +652,7 @@ export const circuitScene: Scene = {
       }
     }
     
-    return (ctx: CanvasRenderingContext2D, time: number, canvas: HTMLCanvasElement) => {
+    return (ctx: CanvasRenderingContext2D, _time: number, canvas: HTMLCanvasElement) => {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
@@ -808,7 +808,6 @@ export const auroraScene: Scene = {
         const wave1 = Math.sin(x * frequency + t + layer * 0.5) * amplitude;
         const wave2 = Math.sin(x * frequency * 2 + t * 1.2 + layer) * amplitude * 0.3;
         const y1 = yOffset + wave1 + wave2;
-        const y2 = yOffset - wave1 - wave2 + amplitude * 2;
         
         if (firstPoint) {
           ctx.moveTo(x, y1);
